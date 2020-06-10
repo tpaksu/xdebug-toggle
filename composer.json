@@ -1,0 +1,46 @@
+{
+    "name": "tpaksu/xdebug-toggle",
+    "description": "Toggles on/of the already installed xdebug extension on php.ini file.",
+    "keywords": [
+        "tpaksu",
+        "xdebug-toggle"
+    ],
+    "homepage": "https://github.com/tpaksu/xdebug-toggle",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Taha PAKSU",
+            "email": "tpaksu@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require-dev": {
+        "orchestra/testbench": "^4.0",
+        "phpunit/phpunit": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tpaksu\\XdebugToggle\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tpaksu\\XdebugToggle\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tpaksu\\XdebugToggle\\XdebugToggleServiceProvider"
+            ]
+        }
+    }
+}
