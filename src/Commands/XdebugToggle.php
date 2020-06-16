@@ -84,26 +84,17 @@ class XdebugToggle extends Command
         }
 
         // Get XDebug desired status from the command line arguments
-        $desiredStatusMixed = $this->argument("status") ?? "";
-        $desiredStatusString = "";
-
-        if (is_array($desiredStatusMixed)) {
-            $desiredStatusString = strval($desiredStatusMixed[0]);
-        } else {
-            $desiredStatusString = $desiredStatusMixed;
-        }
+        $desiredStatus = strval($this->argument("status"));
 
         if ($this->debug) {
-            echo "Desired Status: $desiredStatusString\n";
+            echo "Desired Status: " . ($desiredStatus) . "\n";
         }
 
         // validate desired XDebug status
-        if (!in_array($desiredStatusString, ["on", "off"])) {
+        if (!in_array($desiredStatus, ["on", "off"])) {
             $this->line("Status should be \"on\" or \"off\". Other values are not accepted.", "fg=red;bold");
             return false;
         }
-
-        $desiredStatus = $desiredStatusString === "on" ? true : false;
 
         // Retrieve the INI path to the global variable
         $this->getIniPath();
@@ -127,7 +118,7 @@ class XdebugToggle extends Command
 
         // if the desired status and current status are the same, we don't need to alter anything
         // inform the user and exit
-        if ($currentStatus === $desiredStatusString) {
+        if ($currentStatus === $desiredStatus) {
             $this->line("<fg=green>Already at the desired state. No action has been taken.</>");
             return false;
         }
@@ -139,14 +130,14 @@ class XdebugToggle extends Command
     /**
      * Sets the new XDebug extension status
      *
-     * @param   boolean  $status  Whether the extension should be active or not
+     * @param   string  $status  Whether the extension should be active or not
      *
      * @return  void
      */
     private function setXDebugStatus($status)
     {
         // inform the user about the current operation
-        $this->line("<bold>Setting status to $status</bold>");
+        $this->line("<bold>Setting status to \"$status\"</bold>");
 
         // read the ini file
         $contents = file_get_contents($this->iniPath);
@@ -163,7 +154,7 @@ class XdebugToggle extends Command
                 $contents = str_replace($this->extensionLine, trim($this->extensionLine, ";"), $contents);
                 break;
 
-            default:
+            case 'off':
                 $contents = str_replace($this->extensionLine, ";" . $this->extensionLine, $contents);
                 break;
         }
