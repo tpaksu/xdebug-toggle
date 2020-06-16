@@ -71,7 +71,7 @@ class XdebugToggle extends Command
     /**
      * initialization routines.
      */
-    public function initialize()
+    public function initializeCommand()
     {
         // Define custom format for bold text
         $style = new OutputFormatterStyle('default', 'default', ['bold']);
@@ -89,6 +89,8 @@ class XdebugToggle extends Command
      */
     public function handle()
     {
+        $this->initializeCommand();
+
         // Get XDebug desired status from the command line arguments
         $desiredStatus = strval($this->argument('status'));
 
