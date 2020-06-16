@@ -297,9 +297,10 @@ class XdebugToggle extends Command
          */
         $output = function ($type, $data) {
             if ($type == "err") {
-                return $this->error($data);
+                $this->error($data);
+                return;
             }
-            return $this->info($data);
+            $this->info($data);
         };
 
         // run the command(s) needed to restart the service
