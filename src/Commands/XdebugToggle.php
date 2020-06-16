@@ -69,9 +69,9 @@ class XdebugToggle extends Command
     }
 
     /**
-     * The method that handles the command
+     * initialization routines
      */
-    public function handle()
+    public function initialize()
     {
         // Define custom format for bold text
         $style = new OutputFormatterStyle('default', 'default', array('bold'));
@@ -82,10 +82,47 @@ class XdebugToggle extends Command
         if ($verbosityLevel > OutputInterface::VERBOSITY_DEBUG) {
             $this->debug = true;
         }
+    }
 
+    /**
+     * The method that handles the command
+     */
+    public function handle()
+    {
         // Get XDebug desired status from the command line arguments
         $desiredStatus = strval($this->argument("status"));
 
+        // do the validation
+        if ($this->validateDesiredStatus($desiredStatus) == false) {
+            return false;
+        }
+
+        // Retrieve the INI path to the global variable
+        if ($this->getIniPath() == false) {
+            return false;
+        }
+
+        // Get the XDebug extension information from the INI file
+        $this->getXDebugStatus();
+
+        // do the validation
+        if ($this->validateXDebugStatus($desiredStatus) == false) {
+            return false;
+        }
+
+        // we need to alter the status to the new one. Do it!
+        $this->setXDebugStatus($desiredStatus);
+    }
+
+    /**
+     * Validates the desired status argument received from console
+     *
+     * @param   string  $desiredStatus  Should be "on" or "off"
+     *
+     * @return  boolean                 Whether it is a valid input
+     */
+    public function validateDesiredStatus(string $desiredStatus)
+    {
         if ($this->debug) {
             echo "Desired Status: " . ($desiredStatus) . "\n";
         }
@@ -96,8 +133,29 @@ class XdebugToggle extends Command
             return false;
         }
 
-        // Retrieve the INI path to the global variable
-        $this->getIniPath();
+        return true;
+    }
+
+    /**
+     * Gets the XDebug status and related configuration from the loaded php.ini file
+     */
+    private function getXDebugStatus()
+    {
+        // get the extension status
+        $this->getExtensionStatus();
+
+        // get extemsion settings
+        $this->getExtensionSettings();
+    }
+
+    /**
+     * Retrieves the INI path from php.ini file
+     *
+     * @return void
+     */
+    private function getIniPath()
+    {
+        $this->iniPath = php_ini_loaded_file() ?? "";
 
         // If we can't retrieve the loaded INI path, bail out
         if ($this->iniPath === "") {
@@ -106,9 +164,18 @@ class XdebugToggle extends Command
             return false;
         }
 
-        // Get the XDebug extension information from the INI file
-        $this->getXDebugStatus();
+        return true;
+    }
 
+    /**
+     * Validates the XDebug status received
+     *
+     * @param   string  $desiredStatus  The desired status
+     *
+     * @return  boolean                 Whether we should continue to modify the status or not
+     */
+    public function validateXDebugStatus(string $desiredStatus)
+    {
         // prepare variables for comparison and output
         $currentStatus = $this->extensionStatus ? "on" : "off";
         $styledStatus = $this->extensionStatus ? "<fg=green;bold>on" : "<fg=red;bold>off";
@@ -123,8 +190,7 @@ class XdebugToggle extends Command
             return false;
         }
 
-        // we need to alter the status to the new one. Do it!
-        $this->setXDebugStatus($desiredStatus);
+        return true;
     }
 
     /**
@@ -164,28 +230,6 @@ class XdebugToggle extends Command
 
         // restart the service to put the changes in effect
         $this->restartServices();
-    }
-
-    /**
-     * Retrieves the INI path from php.ini file
-     *
-     * @return void
-     */
-    private function getIniPath()
-    {
-        $this->iniPath = php_ini_loaded_file() ?? "";
-    }
-
-    /**
-     * Gets the XDebug status and related configuration from the loaded php.ini file
-     */
-    private function getXDebugStatus()
-    {
-        // get the extension status
-        $this->getExtensionStatus();
-
-        // get extemsion settings
-        $this->getExtensionSettings();
     }
 
     /**
