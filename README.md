@@ -11,7 +11,7 @@ This package automates the XDebug extension activation/deactivation process by a
 - Modifying the current INI file used by PHP, located with parsing the "php_info()" output containing the line "Loaded Configuration File: [path/to/php.ini]"
 - Restarting the valet NGINX server with the command `valet restart nginx`
 
-If you use something else than Laravel Valet, and want to automate your stuff, you can change the command in `src\Commands\XdebugToggle@restartServices` method to suit your own.
+If you use something else than Laravel Valet, and want to automate your stuff, you can change the **XDEBUG_SERVICE_RESTART_COMMAND** in your environment file, or the `xdebugtoggle.service_restart_command` configuration in xdebug-toggle.php configuration file to suit your own.
 
 ## Installation
 
@@ -37,8 +37,38 @@ php artisan xdebug off
 
 ### Configuration
 
-The only configurable thing is the service restart command (since 0.1.1), which you can alter with an environment
-variable named `XDEBUG_SERVICE_RESTART_COMMAND`. This defaults to `valet restart nginx` if not set to anything else.
+You can export the configuration file by running the command:
+
+``` bash
+php artisan vendor:publish --provider="Tpaksu\XdebugToggle\XdebugToggleServiceProvider"
+```
+
+which includes:
+
+**service_restart_command** : Gives you the option to run a script after you change the *php.ini* line with the new XDebug status. The default is
+
+```bash
+valet restart nginx
+```
+
+which applies the new php.ini configuration on the PHP running on valet's nginx server.
+
+I tried and succeded with this command on Windows running Laragon with nginx:
+
+```batch
+c:/laragon/bin/nginx/nginx-1.12.0/nginx.exe -p c:/laragon/bin/nginx/nginx-1.12.0 -c conf/nginx.conf -s reload
+```
+
+which I changed with setting this environment variable on `.env` and ran `php artisan config:cache` to apply the environment changes:
+
+```ini
+XDEBUG_SERVICE_RESTART_COMMAND="c:/laragon/bin/nginx/nginx-1.12.0/nginx.exe -p c:/laragon/bin/nginx/nginx-1.12.0 -c conf/nginx.conf -s reload"
+```
+
+I could change the configuration setting on `config/xdebug-toggle.php` file too. This would also be a valid modification on the path.
+
+**Note: Don't forget to run `php artisan config:cache` to apply new settings when you change any `.env` parameter or configuration setting. Not only for this package, for all changes inside Laravel.**
+
 
 
 ### Testing

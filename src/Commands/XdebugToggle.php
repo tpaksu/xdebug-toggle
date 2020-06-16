@@ -79,7 +79,8 @@ class XdebugToggle extends Command
 
         // Get the verbosity level to set debug mode flag
         $verbosityLevel = $this->getOutput()->getVerbosity();
-        if ($verbosityLevel > OutputInterface::VERBOSITY_DEBUG) {
+
+        if ($verbosityLevel > OutputInterface::VERBOSITY_NORMAL) {
             $this->debug = true;
         }
     }
@@ -126,11 +127,11 @@ class XdebugToggle extends Command
     public function validateDesiredStatus(string $desiredStatus)
     {
         if ($this->debug) {
-            echo 'Desired Status: '.($desiredStatus)."\n";
+            echo 'Desired Status: ' . ($desiredStatus) . "\n";
         }
 
         // validate desired XDebug status
-        if (! in_array($desiredStatus, ['on', 'off'])) {
+        if (!in_array($desiredStatus, ['on', 'off'])) {
             $this->line('Status should be "on" or "off". Other values are not accepted.', 'fg=red;bold');
 
             return false;
@@ -215,8 +216,8 @@ class XdebugToggle extends Command
 
         if ($this->debug) {
             echo "status: $status\n";
-            echo 'line: '.$this->extensionLine."\n";
-            echo 'new: '.trim($this->extensionLine, ';')."\n";
+            echo 'line: ' . $this->extensionLine . "\n";
+            echo 'new: ' . trim($this->extensionLine, ';') . "\n";
         }
 
         // replace the "zend_extension=*xdebug.*" line with the active/passive equivalent
@@ -226,7 +227,7 @@ class XdebugToggle extends Command
                 break;
 
             case 'off':
-                $contents = str_replace($this->extensionLine, ';'.$this->extensionLine, $contents);
+                $contents = str_replace($this->extensionLine, ';' . $this->extensionLine, $contents);
                 break;
         }
 
@@ -246,8 +247,7 @@ class XdebugToggle extends Command
     {
         // read the extension line from file,
         // can't use parse_ini_file here because the keyed array overwrites "extension" lines and keeps the last one
-        $this->extensionLine = collect(file_get_contents($this->iniPath))
-            ->explode("\n")
+        $this->extensionLine = collect(explode("\n", file_get_contents($this->iniPath)))
             ->filter(function ($line) {
                 return Str::contains($line, 'extension=') && Str::contains($line, 'xdebug');
             })
@@ -256,14 +256,14 @@ class XdebugToggle extends Command
         $this->extensionLine = trim($this->extensionLine ?? '');
 
         if (strlen($this->extensionLine) > 0) {
-            $this->extensionStatus = $this->extensionLine[0] === ';';
+            $this->extensionStatus = $this->extensionLine[0] !== ';';
         } else {
             $this->extensionStatus = false;
         }
 
         if ($this->debug) {
-            echo 'line: '.$this->extensionLine."\n";
-            echo 'ext.status: '.$this->extensionStatus."\n";
+            echo 'line: ' . $this->extensionLine . "\n";
+            echo 'ext.status: ' . $this->extensionStatus . "\n";
         }
     }
 
@@ -296,11 +296,16 @@ class XdebugToggle extends Command
          * @return  void
          */
         $output = function ($type, $data) {
-            $this->info($data);
+            if ($type == "err") {
+                return $this->error($data);
+            }
+            return $this->info($data);
         };
+
         // run the command(s) needed to restart the service
-        (new Process([env('XDEBUG_SERVICE_RESTART_COMMAND', 'valet restart nginx')]))->run($output);
+        Process::fromShellCommandline(config('xdebugtoggle.service_restart_command'))->run($output);
+
         // display the new extension status
-        (new Process(['php --ri xdebug']))->run($output);
+        Process::fromShellCommandline('php --ri xdebug')->run($output);
     }
 }

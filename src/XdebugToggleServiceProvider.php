@@ -14,10 +14,19 @@ class XdebugToggleServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        $this->publishes([
+            __DIR__ . "/config/xdebug-toggle.php" => config_path('xdebug-toggle.php')
+        ], "config");
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 XdebugToggle::class,
             ]);
         }
+    }
+
+    public function register()
+    {
+        $this->mergeConfigFrom(__DIR__ . "/config/xdebug-toggle.php", "xdebugtoggle");
     }
 }
