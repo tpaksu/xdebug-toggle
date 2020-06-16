@@ -3,7 +3,6 @@
 namespace Tpaksu\XdebugToggle\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -85,23 +84,32 @@ class XdebugToggle extends Command
         }
 
         // Get XDebug desired status from the command line arguments
-        $desiredStatus = $this->argument("status");
+        $desiredStatusMixed = $this->argument("status") ?? "";
+        $desiredStatusString = "";
+
+        if (is_array($desiredStatusMixed)) {
+            $desiredStatusString = strval($desiredStatusMixed[0]);
+        } else {
+            $desiredStatusString = $desiredStatusMixed;
+        }
 
         if ($this->debug) {
-            echo "Desired Status: $desiredStatus\n";
+            echo "Desired Status: $desiredStatusString\n";
         }
 
         // validate desired XDebug status
-        if (!in_array($desiredStatus, ["on", "off"])) {
+        if (!in_array($desiredStatusString, ["on", "off"])) {
             $this->line("Status should be \"on\" or \"off\". Other values are not accepted.", "fg=red;bold");
             return false;
         }
+
+        $desiredStatus = $desiredStatusString === "on" ? true : false;
 
         // Retrieve the INI path to the global variable
         $this->getIniPath();
 
         // If we can't retrieve the loaded INI path, bail out
-        if ($this->iniPath == false) {
+        if ($this->iniPath === "") {
             $this->line("Can't get php.ini file path from phpinfo() output.
             Make sure that the function is allowed inside your php.ini configuration.", "bold");
             return false;
@@ -119,7 +127,7 @@ class XdebugToggle extends Command
 
         // if the desired status and current status are the same, we don't need to alter anything
         // inform the user and exit
-        if ($currentStatus === $desiredStatus) {
+        if ($currentStatus === $desiredStatusString) {
             $this->line("<fg=green>Already at the desired state. No action has been taken.</>");
             return false;
         }
@@ -174,7 +182,7 @@ class XdebugToggle extends Command
      */
     private function getIniPath()
     {
-        $this->iniPath = php_ini_loaded_file();
+        $this->iniPath = php_ini_loaded_file() ?? "";
     }
 
     /**
@@ -200,7 +208,7 @@ class XdebugToggle extends Command
         // can't use parse_ini_file here because the keyed array overwrites "extension" lines and keeps the last one
         $this->extensionLine = collect(file_get_contents($this->iniPath))
             ->explode("\n")
-            ->filter(function($line){
+            ->filter(function ($line) {
                 return Str::contains($line, "extension=") && Str::contains($line, "xdebug");
             })
             ->first();
