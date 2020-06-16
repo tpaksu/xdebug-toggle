@@ -93,12 +93,12 @@ class XdebugToggle extends Command
         $desiredStatus = strval($this->argument("status"));
 
         // do the validation
-        if ($this->validateDesiredStatus($desiredStatus) == false) {
+        if ($this->validateDesiredStatus($desiredStatus) === false) {
             return false;
         }
 
         // Retrieve the INI path to the global variable
-        if ($this->getIniPath() == false) {
+        if ($this->getIniPath() === false) {
             return false;
         }
 
@@ -106,7 +106,7 @@ class XdebugToggle extends Command
         $this->getXDebugStatus();
 
         // do the validation
-        if ($this->validateXDebugStatus($desiredStatus) == false) {
+        if ($this->validateXDebugStatus($desiredStatus) === false) {
             return false;
         }
 
@@ -151,7 +151,7 @@ class XdebugToggle extends Command
     /**
      * Retrieves the INI path from php.ini file
      *
-     * @return void
+     * @return boolean
      */
     private function getIniPath()
     {
@@ -250,17 +250,14 @@ class XdebugToggle extends Command
 
         $this->extensionLine = trim($this->extensionLine ?? "");
 
-        if ($this->debug) {
-            echo "line: " . $this->extensionLine . "\n";
-        }
-
         if (strlen($this->extensionLine) > 0) {
-            $this->extensionStatus = $this->extensionLine[0] == ";" ? false : true;
+            $this->extensionStatus = $this->extensionLine[0] === ";";
         } else {
             $this->extensionStatus = false;
         }
 
         if ($this->debug) {
+            echo "line: " . $this->extensionLine . "\n";
             echo "ext.status: " . $this->extensionStatus . "\n";
         }
     }
