@@ -17,3 +17,11 @@ checks:
         fix_identation_4spaces: true
         fix_doc_comments: true
 
+build:
+    nodes:
+        analysis:
+            project-setup:
+                override: true
+            tests:
+                override:
+                    - php-scrutinizer-run --enable-security-analysis
