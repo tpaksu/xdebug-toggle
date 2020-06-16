@@ -4,6 +4,7 @@
 [![Build Status](https://img.shields.io/travis/tpaksu/xdebug-toggle/master.svg?style=flat-square)](https://travis-ci.org/tpaksu/xdebug-toggle)
 [![Quality Score](https://img.shields.io/scrutinizer/g/tpaksu/xdebug-toggle.svg?style=flat-square)](https://scrutinizer-ci.com/g/tpaksu/xdebug-toggle)
 [![Total Downloads](https://img.shields.io/packagist/dt/tpaksu/xdebug-toggle.svg?style=flat-square)](https://packagist.org/packages/tpaksu/xdebug-toggle)
+[![StyleCI](https://github.styleci.io/repos/7548986/shield)](https://github.styleci.io/repos/271391496)
 
 This package automates the XDebug extension activation/deactivation process by adding a console command to Laravel's artisan command. It does these things:
 
