@@ -34,6 +34,12 @@ To disable it:
 php artisan xdebug off
 ```
 
+### Configuration
+
+The only configurable thing is the service restart command (since 0.1.1), which you can alter with an environment
+variable named `XDEBUG_SERVICE_RESTART_COMMAND`. This defaults to `valet restart nginx` if not set to anything else.
+
+
 ### Testing
 
 Any tests written yet. But I suppose I should.
