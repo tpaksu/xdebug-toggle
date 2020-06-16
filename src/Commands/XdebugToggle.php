@@ -11,56 +11,56 @@ use Symfony\Component\Process\Process;
 class XdebugToggle extends Command
 {
     /**
-     * The complete line containing "*_extension=*xdebug*"
+     * The complete line containing "*_extension=*xdebug*".
      *
      * @var string
      */
     protected $extensionLine;
 
     /**
-     * Extension active status
+     * Extension active status.
      *
-     * @var boolean
+     * @var bool
      */
     protected $extensionStatus;
 
     /**
-     * The configuration written in php.ini for XDebug
+     * The configuration written in php.ini for XDebug.
      *
      * @var array
      */
     protected $extensionSettings;
 
     /**
-     * Path of the Loaded INI file
+     * Path of the Loaded INI file.
      *
      * @var string
      */
     protected $iniPath;
 
     /**
-     * Debug mode active flag
+     * Debug mode active flag.
      *
-     * @var boolean
+     * @var bool
      */
     protected $debug;
 
     /**
-     * The command signature
+     * The command signature.
      *
      * @var string
      */
     protected $signature = 'xdebug {status : "on" or "off" to enable/disable XDebug}';
 
     /**
-     * The command description
+     * The command description.
      *
      * @var string
      */
     protected $description = 'Enables or disables XDebug extension';
 
     /**
-     * Class constructor
+     * Class constructor.
      */
     public function __construct()
     {
@@ -69,12 +69,12 @@ class XdebugToggle extends Command
     }
 
     /**
-     * initialization routines
+     * initialization routines.
      */
     public function initialize()
     {
         // Define custom format for bold text
-        $style = new OutputFormatterStyle('default', 'default', array('bold'));
+        $style = new OutputFormatterStyle('default', 'default', ['bold']);
         $this->output->getFormatter()->setStyle('bold', $style);
 
         // Get the verbosity level to set debug mode flag
@@ -85,12 +85,12 @@ class XdebugToggle extends Command
     }
 
     /**
-     * The method that handles the command
+     * The method that handles the command.
      */
     public function handle()
     {
         // Get XDebug desired status from the command line arguments
-        $desiredStatus = strval($this->argument("status"));
+        $desiredStatus = strval($this->argument('status'));
 
         // do the validation
         if ($this->validateDesiredStatus($desiredStatus) === false) {
@@ -115,21 +115,22 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Validates the desired status argument received from console
+     * Validates the desired status argument received from console.
      *
      * @param   string  $desiredStatus  Should be "on" or "off"
      *
-     * @return  boolean                 Whether it is a valid input
+     * @return  bool                 Whether it is a valid input
      */
     public function validateDesiredStatus(string $desiredStatus)
     {
         if ($this->debug) {
-            echo "Desired Status: " . ($desiredStatus) . "\n";
+            echo 'Desired Status: '.($desiredStatus)."\n";
         }
 
         // validate desired XDebug status
-        if (!in_array($desiredStatus, ["on", "off"])) {
-            $this->line("Status should be \"on\" or \"off\". Other values are not accepted.", "fg=red;bold");
+        if (! in_array($desiredStatus, ['on', 'off'])) {
+            $this->line('Status should be "on" or "off". Other values are not accepted.', 'fg=red;bold');
+
             return false;
         }
 
@@ -137,7 +138,7 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Gets the XDebug status and related configuration from the loaded php.ini file
+     * Gets the XDebug status and related configuration from the loaded php.ini file.
      */
     private function getXDebugStatus()
     {
@@ -149,18 +150,19 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Retrieves the INI path from php.ini file
+     * Retrieves the INI path from php.ini file.
      *
-     * @return boolean
+     * @return bool
      */
     private function getIniPath()
     {
-        $this->iniPath = php_ini_loaded_file() ?? "";
+        $this->iniPath = php_ini_loaded_file() ?? '';
 
         // If we can't retrieve the loaded INI path, bail out
-        if ($this->iniPath === "") {
+        if ($this->iniPath === '') {
             $this->line("Can't get php.ini file path from phpinfo() output.
-            Make sure that the function is allowed inside your php.ini configuration.", "bold");
+            Make sure that the function is allowed inside your php.ini configuration.", 'bold');
+
             return false;
         }
 
@@ -168,17 +170,17 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Validates the XDebug status received
+     * Validates the XDebug status received.
      *
      * @param   string  $desiredStatus  The desired status
      *
-     * @return  boolean                 Whether we should continue to modify the status or not
+     * @return  bool                 Whether we should continue to modify the status or not
      */
     public function validateXDebugStatus(string $desiredStatus)
     {
         // prepare variables for comparison and output
-        $currentStatus = $this->extensionStatus ? "on" : "off";
-        $styledStatus = $this->extensionStatus ? "<fg=green;bold>on" : "<fg=red;bold>off";
+        $currentStatus = $this->extensionStatus ? 'on' : 'off';
+        $styledStatus = $this->extensionStatus ? '<fg=green;bold>on' : '<fg=red;bold>off';
 
         // print current status to the user
         $this->line("<fg=yellow>Current XDebug Status: $styledStatus</>");
@@ -186,7 +188,8 @@ class XdebugToggle extends Command
         // if the desired status and current status are the same, we don't need to alter anything
         // inform the user and exit
         if ($currentStatus === $desiredStatus) {
-            $this->line("<fg=green>Already at the desired state. No action has been taken.</>");
+            $this->line('<fg=green>Already at the desired state. No action has been taken.</>');
+
             return false;
         }
 
@@ -194,7 +197,7 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Sets the new XDebug extension status
+     * Sets the new XDebug extension status.
      *
      * @param   string  $status  Whether the extension should be active or not
      *
@@ -210,18 +213,18 @@ class XdebugToggle extends Command
 
         if ($this->debug) {
             echo "status: $status\n";
-            echo "line: " . $this->extensionLine . "\n";
-            echo "new: " . trim($this->extensionLine, ";") . "\n";
+            echo 'line: '.$this->extensionLine."\n";
+            echo 'new: '.trim($this->extensionLine, ';')."\n";
         }
 
         // replace the "zend_extension=*xdebug.*" line with the active/passive equivalent
         switch ($status) {
             case 'on':
-                $contents = str_replace($this->extensionLine, trim($this->extensionLine, ";"), $contents);
+                $contents = str_replace($this->extensionLine, trim($this->extensionLine, ';'), $contents);
                 break;
 
             case 'off':
-                $contents = str_replace($this->extensionLine, ";" . $this->extensionLine, $contents);
+                $contents = str_replace($this->extensionLine, ';'.$this->extensionLine, $contents);
                 break;
         }
 
@@ -233,7 +236,7 @@ class XdebugToggle extends Command
     }
 
     /**
-     * Reads the extension status from PHP ini file
+     * Reads the extension status from PHP ini file.
      *
      * @return void
      */
@@ -244,46 +247,46 @@ class XdebugToggle extends Command
         $this->extensionLine = collect(file_get_contents($this->iniPath))
             ->explode("\n")
             ->filter(function ($line) {
-                return Str::contains($line, "extension=") && Str::contains($line, "xdebug");
+                return Str::contains($line, 'extension=') && Str::contains($line, 'xdebug');
             })
             ->first();
 
-        $this->extensionLine = trim($this->extensionLine ?? "");
+        $this->extensionLine = trim($this->extensionLine ?? '');
 
         if (strlen($this->extensionLine) > 0) {
-            $this->extensionStatus = $this->extensionLine[0] === ";";
+            $this->extensionStatus = $this->extensionLine[0] === ';';
         } else {
             $this->extensionStatus = false;
         }
 
         if ($this->debug) {
-            echo "line: " . $this->extensionLine . "\n";
-            echo "ext.status: " . $this->extensionStatus . "\n";
+            echo 'line: '.$this->extensionLine."\n";
+            echo 'ext.status: '.$this->extensionStatus."\n";
         }
     }
 
     /**
-     * Reads the extension settings from PHP ini file
+     * Reads the extension settings from PHP ini file.
      *
      * @return void
      */
     private function getExtensionSettings()
     {
         $settings = collect(parse_ini_file($this->iniPath))->filter(function ($setting, $key) {
-            return Str::startsWith($key, "xdebug.");
+            return Str::startsWith($key, 'xdebug.');
         });
         $this->extensionSettings = $settings->toArray();
     }
 
     /**
-     * Restarts the services that takes the modification into effect
+     * Restarts the services that takes the modification into effect.
      *
      * @return void
      */
     private function restartServices()
     {
         /**
-         * Define a global outputter to display command output to user
+         * Define a global outputter to display command output to user.
          *
          * @param   string  $type  The type of the output
          * @param   string  $data  The output
@@ -294,8 +297,8 @@ class XdebugToggle extends Command
             $this->info($data);
         };
         // run the command(s) needed to restart the service
-        (new Process([env("XDEBUG_SERVICE_RESTART_COMMAND", "valet restart nginx")]))->run($output);
+        (new Process([env('XDEBUG_SERVICE_RESTART_COMMAND', 'valet restart nginx')]))->run($output);
         // display the new extension status
-        (new Process(["php --ri xdebug"]))->run($output);
+        (new Process(['php --ri xdebug']))->run($output);
     }
 }
