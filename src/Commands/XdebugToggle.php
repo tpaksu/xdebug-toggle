@@ -298,6 +298,7 @@ class XdebugToggle extends Command
         $output = function ($type, $data) {
             if ($type == "err") {
                 $this->error($data);
+
                 return;
             }
             $this->info($data);

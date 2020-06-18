@@ -4,6 +4,7 @@ disabled:
   - single_class_element_per_statement
   - concat_without_spaces
   - single_quote
+  - not_operator_with_successor_space
 
 enabled:
   - concat_with_spaces
